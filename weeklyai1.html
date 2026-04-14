@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly AI Insight - Professional Tool Edition</title>
+
+  <style>
+    /* ✅ 기본 리셋 및 배경 설정 */
+    html, body { 
+      margin:0; padding:0; background:#ffffff; color:#111; 
+      width:100%; height:100%; overflow:hidden; 
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+
+    /* ✅ 전체 컨테이너: 화면 정중앙 정렬을 위한 Flex 설정 */
+    .bulletin-outer-container {
+      width: 100%; height: 100vh; position: relative;
+      display: flex; justify-content: center; align-items: center;
+      font-family:'Pretendard','Malgun Gothic',sans-serif;
+      background: #ffffff;
+    }
+
+    /* 배경 아이콘 */
+    .bg-floating-icons { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .f-icon { position: absolute; opacity: 0.06; pointer-events: none; color: #000; }
+
+    /* ✅ 카드 네비게이션 그룹 */
+    .card-navigation-group { 
+      position: relative; z-index: 10; 
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    /* ✅ 카드 본체 */
+    .ai-card-wrapper {
+      position: absolute; 
+      width: 400px; height: 710px;
+      background-color: #181818 !important; border-radius: 38px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+      transform-origin: center center;
+    }
+
+    .ai-nav-input { display:none !important; }
+
+    .ai-page {
+      position:absolute; top:0; left:0; width: 400px; height: 710px;
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-color: #181818;
+      box-sizing: border-box;
+      transition: opacity 0.38s ease;
+    }
+
+    /* 탭 전환: 페이드만 */
+    #tab-intro:checked ~ .card-navigation-group .pg-intro,
+    #tab-menu:checked ~ .card-navigation-group .pg-menu,
+    #tab-1:checked ~ .card-navigation-group .pg-1, #tab-2:checked ~ .card-navigation-group .pg-2,
+    #tab-3:checked ~ .card-navigation-group .pg-3, #tab-4:checked ~ .card-navigation-group .pg-4,
+    #tab-5:checked ~ .card-navigation-group .pg-5, #tab-6:checked ~ .card-navigation-group .pg-6,
+    #tab-7:checked ~ .card-navigation-group .pg-7, #tab-8:checked ~ .card-navigation-group .pg-8,
+    #tab-9:checked ~ .card-navigation-group .pg-9, #tab-10:checked ~ .card-navigation-group .pg-10,
+    #tab-11:checked ~ .card-navigation-group .pg-11, #tab-12:checked ~ .card-navigation-group .pg-12,
+    #tab-13:checked ~ .card-navigation-group .pg-13, #tab-14:checked ~ .card-navigation-group .pg-14,
+    #tab-15:checked ~ .card-navigation-group .pg-15, #tab-16:checked ~ .card-navigation-group .pg-16 {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 20;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ai-page { transition: opacity 0.15s ease; }
+    }
+
+    /* [인트로 스타일] */
+    .pg-intro {
+      background-color: #181818; cursor: pointer;
+      overflow: hidden;
+    }
+    .pg-intro img {
+      position: absolute;
+      top: 0; left: 0;
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: inherit;
+      transform: scale(1.06);
+      transform-origin: center center;
+    }
+    .pg-intro .page-footer {
+      z-index: 30;
+      color: #ffffff;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.75);
+    }
+    .intro-inner { 
+      width: 100%; height: 100%; 
+      display: flex; flex-direction: column; 
+      justify-content: center; align-items: center; 
+      position: relative; padding: 20px;
+      text-align: center;
+    }
+    .intro-sub { font-size: 16px; font-weight: 700; color: rgba(255, 255, 255, 0.8); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .intro-logo { font-family: "Arial Black", sans-serif; font-size: 44px; font-weight: 900; color: #ffffff; letter-spacing: -2px; margin-bottom: 8px; line-height: 1.1; font-style: italic; }
+    .intro-main { font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 35px; letter-spacing: -1px; }
+    .intro-desc { font-size: 16px; font-weight: 700; color: rgba(255, 255, 255, 0.6); line-height: 1.6; margin-bottom: 40px; word-break: keep-all; }
+    
+    /* 버튼 스타일 */
+    .intro-hint-box { 
+      display: inline-block; 
+      background: linear-gradient(135deg, #001f3f 0%, #000c1a 100%);
+      padding: 16px 36px; 
+      border-radius: 50px; 
+      border: 1px solid rgba(255, 255, 255, 0.2); 
+      margin-bottom: 18px; 
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+    .intro-hint-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+      background: linear-gradient(135deg, #002b55 0%, #00152a 100%);
+    }
+    .intro-hint { font-size: 16px; color: #ffffff; font-weight: 900; letter-spacing: -0.3px; }
+    
+    /* 공지 문구 스타일: 한 줄 최적화 */
+    .intro-notice { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); line-height: 1.5; letter-spacing: -0.3px; white-space: nowrap; }
+
+    .intro-signature { position: absolute; bottom: 35px; display: flex; align-items: center; gap: 8px; }
+    .sig-text { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8); }
+
+    /* 상단 네비게이션 공통 버튼 */
+    .btn-nav-top {
+      position: absolute; top: 20px; right: 20px; z-index: 120; width: 38px; height: 38px;
+      background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.3);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .btn-nav-top:hover {
+      transform: scale(1.12);
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+      border-color: rgba(255,255,255,0.45);
+    }
+    .btn-nav-top:active { transform: scale(0.92); transition-duration: 0.08s; }
+
+    /* 비주얼 이미지 영역 */
+    .visual-area {
+      position: absolute; top: 0; left: 0; width: 400px; height: 400px;
+      z-index: 1; background-color: #181818;
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+    }
+    .visual-area-overlay {
+      position: absolute; top: 0; left: 0; width: 400px; height: 401px; 
+      background: linear-gradient(to bottom, rgba(24,24,24,0) 0%, rgba(24,24,24,0) 20%, rgba(24,24,24,0.05) 35%, rgba(24,24,24,0.2) 50%, rgba(24,24,24,0.55) 70%, rgba(24,24,24,0.85) 85%, rgba(24,24,24,1) 92%, #181818 100%);
+      z-index: 5; pointer-events: none;
+    }
+
+    .category-badge { position: absolute; top: 405px; left: 30px; padding:5px 12px; border-radius:7px; font-size:9px; font-weight:900; z-index: 20; }
+    .ai-app-icon { position: absolute; top: 445px; left: 30px; width: 64px; height: 64px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.25); overflow:hidden; background:#222; z-index: 20;}
+    .ai-app-icon img { width:100%; height:100%; object-fit:cover; display:block; }
+    .ai-title-text { position: absolute; top: 460px; left: 110px; font-size:30px; font-weight:900; z-index: 20;}
+    .ai-subtitle { position: absolute; top: 520px; left: 35px; width: 340px; font-size:16px; font-weight: 600; color:rgba(255,255,255,0.85); line-height:1.4; z-index: 20;}
+    .brief-points { position: absolute; top: 570px; left: 35px; width: 340px; z-index: 20;}
+    .point-item { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; color: #fff; }
+    .point-dot { width:7px; height:7px; border-radius:50%; flex-shrink: 0; }
+    
+    /* 하단 안내 문구 */
+    .page-footer { position:absolute; bottom:25px; width:100%; text-align:center; font-size:14px; font-weight:900; color: rgba(255,255,255,0.4); letter-spacing:1px; z-index: 20; }
+    .badge-doc { color:#60a5fa; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.5); }
+    .badge-auto { color:#c084fc; background:rgba(192,132,252,0.15); border:1px solid rgba(192,132,252,0.5); }
+    .badge-img  { color:#fbbf24; background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.5); }
+    .badge-video{ color:#fb7185; background:rgba(251,113,133,0.15); border:1px solid rgba(251,113,133,0.5); }
+
+    .back-to-menu-label { display:block; width:100%; height:100%; position:absolute; top:0; left:0; cursor:pointer; z-index:50; }
+
+    /* 메뉴 허브 전용 스타일 */
+    .menu-title-fixed { position: absolute; top: 55px; left: 25px; font-size: 21px; font-weight: 900; }
+    .menu-instruction-fixed { position: absolute; top: 86px; left: 25px; font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.4); }
+    .cat-title { font-weight: 900; font-size: 13px; margin-bottom: 12px; }
+    .cat-line { height: 1px; width: 350px; margin-top: -8px; margin-bottom: 12px; opacity: 0.4; }
+    .hub-item {
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 82px;
+      position: relative; z-index: 1;
+      transition: transform 0.22s cubic-bezier(0.34, 1.45, 0.64, 1);
+    }
+    .hub-item:hover {
+      transform: scale(1.14);
+      z-index: 5;
+    }
+    .hub-item:active {
+      transform: scale(1.02);
+      transition: transform 0.08s ease;
+    }
+    .hub-icon-sm {
+      width: 64px; height: 64px; border-radius: 16px; background: #252525;
+      border: 1px solid rgba(255,255,255,0.15); overflow: hidden; margin-bottom: 7px;
+      transition: box-shadow 0.22s ease, border-color 0.22s ease, filter 0.22s ease;
+    }
+    .hub-item:hover .hub-icon-sm {
+      box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.4);
+      filter: brightness(1.08);
+    }
+    .hub-item:active .hub-icon-sm { filter: brightness(0.92); }
+    .hub-icon-sm img { width: 100%; height: 100%; object-fit: cover; }
+    .hub-name-sm {
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); text-align: center;
+      transition: color 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.45, 0.64, 1);
+    }
+    .hub-item:hover .hub-name-sm { color: rgba(255,255,255,0.92); }
+  </style>
+</head>
+
+<body>
+  <div class="bulletin-outer-container" id="mainContainer">
+    <div class="bg-floating-icons">
+      <svg class="f-icon" style="width:25px; top:10%; left:10%;" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+      <svg class="f-icon" style="width:40px; top:20%; left:80%;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+    </div>
+
+    <!-- 라디오 버튼 제어 -->
+    <input type="radio" name="ai-nav" id="tab-intro" class="ai-nav-input" checked>
+    <input type="radio" name="ai-nav" id="tab-menu" class="ai-nav-input">
+    <script>
+      for(let i=1; i<=16; i++) document.write(`<input type="radio" name="ai-nav" id="tab-${i}" class="ai-nav-input">`);
+    </script>
+
+    <div class="card-navigation-group" id="navGroup">
+      <div class="ai-card-wrapper" id="cardWrapper">
+
+        <!-- [PAGE] 1. 표지 이미지 -->
+        <label for="tab-menu" class="ai-page pg-intro" style="background:#000; padding:0; display:block; cursor:pointer;">
+          <img src="https://kikeun.github.io/aidesign/ai70.jpg" alt="표지">
+          <div class="page-footer">클릭하여 AI를 확인하세요</div>
+        </label>
+
+        <!-- [PAGE] 2. MENU HUB -->
+        <div class="ai-page pg-menu">
+          <label for="tab-intro" class="btn-nav-top">
+            <svg viewBox="0 0 24 24" style="width:22px; fill:none; stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </label>
+          <div class="menu-title-fixed">어떤 AI가 궁금하신가요?</div>
+          <div class="menu-instruction-fixed">어플을 클릭하여 AI를 확인하세요</div>
+          
+          <div style="position:absolute; top:125px; left:25px; width:350px;">
+            <div class="cat-title" style="color:#60a5fa;">문서업무 · 생산성</div>
+            <div class="cat-line" style="background:#60a5fa;"></div>
+            <div style="display:flex; gap:10px;">
+              <label for="tab-1" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai1.png"></div><div class="hub-name-sm">Claude</div></label>
+              <label for="tab-2" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai2.png"></div><div class="hub-name-sm">Copilot</div></label>
+              <label for="tab-3" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai3.png"></div><div class="hub-name-sm">Genspark</div></label>
+              <label for="tab-4" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai4.png"></div><div class="hub-name-sm">Perplexity</div></label>
+            </div>
+          </div>
+
+          <div style="position:absolute; top:265px; left:25px; width:350px;">
+            <div class="cat-title" style="color:#c084fc;">코딩 · 자동화</div>
+            <div class="cat-line" style="background:#c084fc;"></div>
+            <div style="display:flex; gap:10px;">
+              <label for="tab-5" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai5.png"></div><div class="hub-name-sm">Cursor</div></label>
+              <label for="tab-6" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai6.png"></div><div class="hub-name-sm">Antigravity</div></label>
+              <label for="tab-7" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai7.png"></div><div class="hub-name-sm">n8n</div></label>
+              <label for="tab-8" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai8.png"></div><div class="hub-name-sm">Make</div></label>
+            </div>
+          </div>
+
+          <div style="position:absolute; top:405px; left:25px; width:350px;">
+            <div class="cat-title" style="color:#fbbf24;">이미지 · 디자인</div>
+            <div class="cat-line" style="background:#fbbf24;"></div>
+            <div style="display:flex; gap:10px;">
+              <label for="tab-9" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai9.png"></div><div class="hub-name-sm">Midjourney</div></label>
+              <label for="tab-10" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai10.png"></div><div class="hub-name-sm">Figma</div></label>
+              <label for="tab-11" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai11.png"></div><div class="hub-name-sm">NanoBanana</div></label>
+              <label for="tab-12" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai12.png"></div><div class="hub-name-sm">Canva</div></label>
+            </div>
+          </div>
+
+          <div style="position:absolute; top:545px; left:25px; width:350px;">
+            <div class="cat-title" style="color:#fb7185;">영상 · 콘텐츠</div>
+            <div class="cat-line" style="background:#fb7185;"></div>
+            <div style="display:flex; gap:10px;">
+              <label for="tab-13" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai13.png"></div><div class="hub-name-sm">Higgsfield</div></label>
+              <label for="tab-14" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai14.png"></div><div class="hub-name-sm">CapCut</div></label>
+              <label for="tab-15" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai15.png"></div><div class="hub-name-sm">Veo3</div></label>
+              <label for="tab-16" class="hub-item"><div class="hub-icon-sm"><img src="https://kikeun.github.io/aidesign/ai16.png"></div><div class="hub-name-sm">HeyGen</div></label>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          const aiTools = [
+            { id:1, cat:"문서업무 · 생산성", badge:"badge-doc", title:"Claude", sub:"사람같은 문체와 압도적 추론 성능의 텍스트 AI", p:["데이터 결과물 실시간 시각화","창의적이고 감성적인 작문 능력","압도적인 문맥 처리량 지원"], img:"ai21.png", icon:"ai1.png", dot:"#60a5fa" },
+            { id:2, cat:"문서업무 · 생산성", badge:"badge-doc", title:"Copilot", sub:"MS 오피스 생산성을 극대화하는 지능형 비서", p:["MS Office 제품군과 강력한 통합","엑셀 데이터 분석 및 자동 시각화","회의 요약 및 스케줄 자동화"], img:"ai22.png", icon:"ai2.png", dot:"#60a5fa" },
+            { id:3, cat:"문서업무 · 생산성", badge:"badge-doc", title:"Genspark", sub:"검색부터 결과물까지 한 번에 만들어주는 AI", p:["조사, 정리, 결과물 생성 자동화","PPT, 문서, 이미지 즉시 제작","신뢰도 높은 소스 기반 정보 수집"], img:"ai23.png", icon:"ai3.png", dot:"#60a5fa" },
+            { id:4, cat:"문서업무 · 생산성", badge:"badge-doc", title:"Perplexity", sub:"출처를 제공하는 실시간 지식 엔진", p:["정밀한 출처 자동 표기 시스템","실시간 웹 탐색 기반 지식 제공","인용을 통한 높은 신뢰성 확보"], img:"ai24.png", icon:"ai4.png", dot:"#60a5fa" },
+            { id:5, cat:"코딩 · 자동화", badge:"badge-auto", title:"Cursor", sub:"코딩 생산성을 혁신하는 AI 에디터", p:["프로젝트 전체 흐름을 이해해 코드 수정","말로 설명하면 AI가 코드 작성·오류 해결","기존 개발 환경(VS Code)+AI agent"], img:"ai25.png", icon:"ai5.png", dot:"#c084fc" },
+            { id:6, cat:"코딩 · 자동화", badge:"badge-auto", title:"Antigravity", sub:"코딩 없이, 말로 웹서비스를 만드는 AI 도구", p:["원하는 기능 설명하면 AI가 웹앱 제작","결과물 바로 수정하고 실시간 배포 가능","Google 시트·드라이브 등과 쉽게 연동"], img:"ai26.png", icon:"ai6.png", dot:"#c084fc" },
+            { id:7, cat:"코딩 · 자동화", badge:"badge-auto", title:"n8n", sub:"시각적으로 설계하는 데이터 흐름", p:["슬랙, 노션 등 수백 개 앱 드래그로 연결","AI 에이전트 연결해 자동 실행 가능","필요시 코드로 API 연동 및 자동화 구현 가능"], img:"ai27.png", icon:"ai7.png", dot:"#c084fc" },
+            { id:8, cat:"코딩 · 자동화", badge:"badge-auto", title:"Make", sub:"수천 개의 앱을 시각적으로 연결", p:["드래그 앤 드롭 방식 시나리오","정교한 데이터 매핑 및 분석","수천 개 이상의 외부 서비스 연동"], img:"ai28.png", icon:"ai8.png", dot:"#c084fc" },
+            { id:9, cat:"이미지 · 디자인", badge:"badge-img", title:"Midjourney", sub:"예술적 감각의 정점 이미지 생성 AI", p:["독보적인 라이팅과 질감 표현","V6 기반 하이퍼 리얼리즘 구현","사용자 고유 스타일 전송 기능"], img:"ai29.png", icon:"ai9.png", dot:"#fbbf24" },
+            { id:10, cat:"이미지 · 디자인", badge:"badge-img", title:"Figma", sub:"팀원과 같은 화면에서 실시간 디자인", p:["설치 없이 브라우저에서 바로 사용","디자인을 바로 코드로 변환 가능","AI로 디자인 초안 자동 생성 및 레이아웃 제안"], img:"ai30.png", icon:"ai10.png", dot:"#fbbf24" },
+            { id:11, cat:"이미지 · 디자인", badge:"badge-img", title:"NanoBanana", sub:"텍스트로 고품질 이미지를 만드는 AI 모델", p:["최대 4K 고해상도 이미지 즉시 생성","다양한 화풍 및 스타일 변환 특화","조명·앵글·초점 등 세밀한 조정 가능"], img:"ai31.png", icon:"ai11.png", dot:"#fbbf24" },
+            { id:12, cat:"이미지 · 디자인", badge:"badge-img", title:"Canva", sub:"누구나 쉽게 쓰는 올인원 디자인 도구", p:["템플릿으로 SNS·발표자료·영상 제작","AI가 텍스트만으로 디자인 초안 생성","팀원과 실시간 공동 편집 및 바로 공유 가능"], img:"ai32.png", icon:"ai12.png", dot:"#fbbf24" },
+            { id:13, cat:"영상 · 콘텐츠", badge:"badge-video", title:"Higgsfield", sub:"사실적인 사물·인물 영상 제작 AI", p:["표정과 미세 동작을 사실적으로 생성","사진 한 장으로 움직이는 영상 제작 가능","정교한 카메라 앵글 조정 및 연출 가능"], img:"ai33.png", icon:"ai13.png", dot:"#fb7185" },
+            { id:14, cat:"영상 · 콘텐츠", badge:"badge-video", title:"CapCut", sub:"AI 기반 프로급 영상 편집기", p:["지능형 컷 편집 및 자막 생성","고품질 AI 성우 및 배경음악","트렌디한 효과 및 전환 효과"], img:"ai34.png", icon:"ai14.png", dot:"#fb7185" },
+            { id:15, cat:"영상 · 콘텐츠", badge:"badge-video", title:"VEO3", sub:"텍스트로 영화급 영상을 만드는 모델", p:["물리 법칙의 정밀한 재현","객체 일관성 높은 고해상도","시네마틱 구도 및 장면 묘사"], img:"ai35.png", icon:"ai15.png", dot:"#fb7185" },
+            { id:16, cat:"영상 · 콘텐츠", badge:"badge-video", title:"HeyGen", sub:"디지털 아바타 기반 다국어 영상 제작", p:["정교한 립싱크 및 보이스 클로닝","자연스러운 바디 랭귀지 제스처","영상 다국어 자동 번역 지원"], img:"ai36.png", icon:"ai16.png", dot:"#fb7185" }
+          ];
+
+          aiTools.forEach(t => {
+            document.write(`
+              <div class="ai-page pg-${t.id}">
+                <!-- 홈 아이콘 (3번 메뉴 허브로 이동) -->
+                <label for="tab-menu" class="btn-nav-top">
+                  <svg viewBox="0 0 24 24" style="width:20px; fill:#fff;">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
+                </label>
+                <label for="tab-menu" class="back-to-menu-label">
+                  <div class="visual-area" style="background-image: url('https://kikeun.github.io/aidesign/${t.img}');">
+                    <div class="visual-area-overlay"></div>
+                  </div>
+                  <div class="category-badge ${t.badge}">${t.cat}</div>
+                  <div class="ai-app-icon"><img crossorigin="anonymous" src="https://kikeun.github.io/aidesign/${t.icon}"></div>
+                  <div class="ai-title-text">${t.title}</div>
+                  <div class="ai-subtitle">${t.sub}</div>
+                  <div class="brief-points">
+                    ${t.p.map(txt => `<div class="point-item"><div class="point-dot" style="background:${t.dot};"></div>${txt}</div>`).join('')}
+                  </div>
+                  <div class="page-footer">클릭하여 목록으로 돌아가기</div>
+                </label>
+              </div>
+            `);
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function rescaleCard() {
+      const wrapper = document.getElementById('cardWrapper');
+      const navGroup = document.getElementById('navGroup');
+      if(!wrapper || !navGroup) return;
+
+      const windowH = window.innerHeight;
+      const windowW = window.innerWidth;
+
+      const scaleH = (windowH * 0.94) / 710;
+      const scaleW = (windowW * 0.96) / 400;
+      const currentScale = Math.min(scaleH, scaleW, 1.2);
+
+      wrapper.style.transform = `scale(${currentScale})`;
+      navGroup.style.width = (400 * currentScale) + 'px';
+      navGroup.style.height = (710 * currentScale) + 'px';
+    }
+
+    window.addEventListener('resize', rescaleCard);
+    window.addEventListener('load', rescaleCard);
+    rescaleCard();
+  </script>
+</body>
+</html>
